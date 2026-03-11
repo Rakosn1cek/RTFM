@@ -68,3 +68,21 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 If **RTFM** saved you some time today, feel free to buy me a coffee!
 
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/Rakosn1cek)
+
+## Roadmap
+**v0.2.0 - The "AUR & Keys" Update**
+[ ] **PGP Key Auto-Fetch**: Detect gpg verification failures during AUR installs and offer to fetch the missing keys.
+
+[ ] **Orphan Cleanup**: Add a prompt to identify and remove orphaned packages (-Rns) after a successful uninstall.
+
+[ ] **Paru/Yay parity**: Ensure full compatibility with the most popular AUR helpers beyond basic search.
+
+**v0.3.0 - Intelligence & History**
+[ ] **Smart History Search**: If a command fails, check the user's history for the most similar successful command and suggest it.
+
+[ ] **Mirrorlist Health**: Detect "connection timed out" errors and offer to trigger a reflector update to refresh mirrors.
+
+**Long-term Research**
+[ ] **Fish & Bash Ports**: Exploring a POSIX-compliant core to bring RTFM logic to other shells.
+
+[ ] **Contextual Wiki Links**: Provide a direct URL to the relevant Arch Wiki section alongside the fix.
