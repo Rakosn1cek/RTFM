@@ -61,3 +61,10 @@ zsh: command not found: tree
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 [⭐ Star RTFM on GitHub](https://github.com/Rakosn1cek/RTFM)
+
+---
+
+## Support
+If **RTFM** saved you some time today, feel free to buy me a coffee!
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/Rakosn1cek)
