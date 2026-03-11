@@ -37,7 +37,7 @@ if ! command -v "$cmd_base" >/dev/null 2>&1; then
     fi
 else
     # 4. SECONDARY: Pacman/AUR History Check
-    # If the command exists but the pacman operation failed (like the vscode example)
+    # Use the last pacman-related command if the binary exists but failed
     local last_pac_cmd=$(history | grep -E 'pacman|yay|paru' | tail -n 1 | sed 's/^[ ]*[0-9]*[ ]*//')
     local pkg=$(echo "$last_pac_cmd" | awk '{print $NF}')
     
@@ -48,7 +48,7 @@ else
 fi
 
 # 5. Search and selection logic (Official + AUR)
-# We use sed to remove repository prefixes (like 'extra/') from the pkg name
+# Remove repository prefixes (like 'extra/') from the pkg name using sed
 local clean_pkg=$(echo "$pkg" | sed 's|.*/||')
 
 local selection=$( (pacman -Ssq "^${clean_pkg}$" || pacman -Ssq "$clean_pkg"; yay -Ssq "$clean_pkg" 2>/dev/null) | awk '!x[$0]++' | fzf \
