@@ -1,8 +1,10 @@
 # RTFM (Real-Time Fix Manager)
 
+Version: 0.1.0
+
 A modular, lazy-loaded Zsh plugin for Arch Linux. Instead of searching the Wiki for why a command failed, `rtfm` uses `fzf` to resolve package conflicts, find missing binaries, and clear database locks.
 
-
+![RTFM Demo](assets/demo.jpg)
 
 ## Features
 
