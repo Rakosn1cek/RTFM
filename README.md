@@ -1,22 +1,24 @@
-# RTFM (Real-Time Fix Manager)
+# Mend (formerly RTFM)
 
-Version: v0.2.0
+**VERSION: v0.2.1**
 
-A modular, lazy-loaded Zsh plugin for Arch Linux. Built for developers who know the Wiki but want to automate the friction. RTFM handles the "manual" work of resolving package locks, missing PGP keys, and binary owner lookups so you can stay in the flow.
+**Mend** is a modular, fzf-powered recovery tool for Arch Linux. It "mends" your broken command chain by detecting failures (like missing PGP keys or locked databases) and offering a context-aware fix.
+> [!IMPORTANT]
+> **RTFM has been rebranded to Mend.** If you are an existing user, please see the [Migration](#-migration-from-rtfm) section below.
 
 ![RTFM Demo](assets/demo.png)
 
 ## What's New in v0.2.0
 [!TIP]
 * **The Signature Update**: This version focuses on making AUR installations frictionless by handling GPG automation and refining shell history interaction.
-* **PGP Key Auto-Fetch**: No more manual `gpg --recv-keys`. RTFM detects the missing ID and fetches it for you.
-* **Zero-Conflict History**: Switched to `history -n` to prevent RTFM from accidentally opening your text editor (Micro/Vim) when reading command history.
-* **Improved Logic Flow**: RTFM now intelligently skips over echo and itself to find the actual failed command that needs fixing.
+* **PGP Key Auto-Fetch**: No more manual `gpg --recv-keys`. `mend` detects the missing ID and fetches it for you.
+* **Zero-Conflict History**: Switched to `history -n` to prevent `mend` from accidentally opening your text editor (Micro/Vim) when reading command history.
+* **Improved Logic Flow**: `mend` now intelligently skips over echo and itself to find the actual failed command that needs fixing.
 
 ## Features
 
 * **[NEW v0.2.0] PGP Key Automation:** Detects "Unknown Public Key" errors during AUR installs and offers to fetch them from a keyserver automatically.
-* **Intelligent Package Correction:** If `pacman` fails to find a package, `rtfm` searches both official repositories and the AUR to find the correct match.
+* **Intelligent Package Correction:** If `pacman` fails to find a package, `mend` searches both official repositories and the AUR to find the correct match.
 * **Command-to-Package Mapping:** Uses `pacman -Fy` logic to identify which package provides a missing binary (e.g., typing `tree` when it's not installed).
 * **Automatic Lock Detection:** Detects `/var/lib/pacman/db.lck` and offers an interactive prompt to remove it.
 * **Zero-Overhead Loading:** Uses Zsh's `autoload` functionality. The logic only hits your RAM when you actually run the command.
@@ -32,23 +34,23 @@ Ensure you have the following installed on your Arch system:
 ## Installation
 
 ## Clone the repository
-Clone RTFM to your preferred directory:
+Clone mend to your preferred directory:
 
 ```zsh
-git clone https://github.com/Rakosn1cek/RTFM.git /path/to/your/choice/rtfm
+git clone https://github.com/Rakosn1cek/mend.git /path/to/your/choice/mend
 ```
 ## Installation instruction for OMZ users:
 ```zsh
-git clone https://github.com/Rakosn1cek/RTFM.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/rtfm
+git clone https://github.com/Rakosn1cek/mend.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/mend
 ```
-## Add 'rtfm' to the plugins array in your ~/.zshrc
-**plugins=(... rtfm)**
+## Add 'mend' to the plugins array in your ~/.zshrc
+**plugins=(... mend)**
 
 ## Configure Zsh
 Manual / Vanilla Zsh.
 Add the following line to your ~/.zshrc:
 ```zsh
-source /path/to/your/choice/rtfm/rtfm.plugin.zsh
+source /path/to/your/choice/mend/mend.plugin.zsh
 ```
 ## Initialize File Database
 For the "Command Not Found" feature to work, ensure your local file database is up to date:
@@ -58,13 +60,13 @@ sudo pacman -Fy
 > **Note:** It is recommended to run this periodically (or via a timer) to keep the "Command-to-Package" mapping accurate.
 
 ## Usage
-Simply run rtfm after a failed command or a "command not found" error.
+Simply run `mend` after a failed command or a "command not found" error.
 **Example 1**: Missing Binary
 ```zsh
 ❯ tree
 zsh: command not found: tree
 
-❯ rtfm
+❯ mend
 # fzf opens, searches for 'tree', and prepares the install command
 ```
 **Example 2**: PGP Signature Error (AUR) [NEW v0.2.0]
@@ -73,21 +75,21 @@ zsh: command not found: tree
 ==> ERROR: One or more PGP signatures could not be verified!
 unknown public key 1397BC53640DE551
 
-❯ rtfm
-RTFM: Detected missing PGP key: 1397BC53640DE551
+❯ mend
+mend: Detected missing PGP key: 1397BC53640DE551
 Import this key from keyserver? (y/n) y
-# RTFM fetches the key and puts the 'yay' command back in your buffer
+# mend fetches the key and puts the 'yay' command back in your buffer
 ```
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-[⭐ Star RTFM on GitHub](https://github.com/Rakosn1cek/RTFM)
+[⭐ Star mend on GitHub](https://github.com/Rakosn1cek/mend)
 
 ---
 
 ## Support
-If **RTFM** saved you some time today, feel free to buy me a coffee!
+If **mend** saved you some time today, feel free to buy me a coffee!
 
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/Rakosn1cek)
 
@@ -106,7 +108,7 @@ If **RTFM** saved you some time today, feel free to buy me a coffee!
 ### Long-term Research
 - [ ] **Contextual Wiki Links**: Provide a direct URL to the relevant Arch Wiki section alongside the fix.
 - [ ] **Smart History Search**: Suggest the most similar successful command from history when a typo occurs.
-- [ ] **Fish & Bash Ports**: Exploring a POSIX-compliant core to bring RTFM logic to other shells.
+- [ ] **Fish & Bash Ports**: Exploring a POSIX-compliant core to bring mend logic to other shells.
 
 ## 📜 CHANGELOG
 
@@ -118,19 +120,28 @@ If **RTFM** saved you some time today, feel free to buy me a coffee!
 
 #### Changed
 - Replaced `fc` with `history -n` to bypass `$EDITOR` conflicts.
-- Refined history scraping to ignore `rtfm` and `echo` calls.
+- Refined history scraping to ignore `mend` and `echo` calls.
 - Updated README with better usage examples and modular descriptions.
 
-### [v0.1.0] - 2026-02-01
+### [v0.1.0] - 2026-03-01
 - Initial release.
 - Support for `db.lck` detection and removal.
 - Command-not-found integration using `pacman -F`.
 - Basic `fzf` search for official and AUR packages.
 
 ## ⚠️ Known Issues
-* **Zsh History Settings:** If your `HISTSIZE` is set extremely low or if you use `setopt HIST_IGNORE_ALL_DUPS`, RTFM might struggle to find the original failed command. 
-* **Keyserver Downtime:** RTFM relies on `keyserver.ubuntu.com`. If that server is down or blocked by your network/firewall, PGP auto-fetch will fail (RTFM will notify you if this happens).
-* **Subshell Execution:** Because RTFM relies on `history -n`, it may not detect errors generated inside nested subshells or some complex pipe chains.
+* **Zsh History Settings:** If your `HISTSIZE` is set extremely low or if you use `setopt HIST_IGNORE_ALL_DUPS`, mend might struggle to find the original failed command. 
+* **Keyserver Downtime:** mend relies on `keyserver.ubuntu.com`. If that server is down or blocked by your network/firewall, PGP auto-fetch will fail (mend will notify you if this happens).
+* **Subshell Execution:** Because mend relies on `history -n`, it may not detect errors generated inside nested subshells or some complex pipe chains.
 * **Non-Standard Helpers:** Currently optimized for `yay`, `paru`, and `makepkg`. Other AUR helpers might have slightly different error strings that aren't caught yet.
+
+## Migration from RTFM
+**If you previously used RTFM**:
+
+- Rename your local folder from `rtfm` to `mend`.
+
+- Update your .zshrc (change `autoload -Uz rtfm` to `autoload -Uz mend`).
+
+- The rtfm command is now an alias for mend to ensure your existing muscle memory still works.
 
 > *Find a bug? Open an issue or submit a PR. I'm especially looking for PGP error strings from helpers other than yay/paru*
