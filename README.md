@@ -134,9 +134,9 @@ If **mend** saved you some time today, feel free to buy me a coffee!
 - [x] **Terminal Buffer Re-injection**: Re-propagate fixed commands back to the prompt.
 
 ### v0.3.0 - Intelligence & Cleanup
-- [ ] **Orphan Cleanup**: Add a prompt to identify and remove orphaned dependencies (`-Rns`) after an uninstall.
-- [ ] **Dynamic History Depth**: Automatically increase history search depth if a fix isn't found in the initial buffer.
-- [ ] **Mirrorlist Health**: Detect "connection timed out" errors and offer to trigger a `reflector` mirror update.
+- [x] **Orphan Cleanup**: Add a prompt to identify and remove orphaned dependencies (`-Rns`) after an uninstall.
+- [x] **Dynamic History Depth**: Automatically increase history search depth if a fix isn't found in the initial buffer.
+- [x] **Mirrorlist Health**: Detect "connection timed out" errors and offer to trigger a `reflector` mirror update.
 
 ### Long-term Research
 - [ ] **Contextual Wiki Links**: Provide a direct URL to the relevant Arch Wiki section alongside the fix.
