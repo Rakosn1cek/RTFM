@@ -1,24 +1,59 @@
 ## 📜 CHANGELOG
 
+## [0.4.0] - 2026-03-22
+### Added
+- Integrated Knowledge Base (MEND_KB) for standardized error descriptions and Wiki links.
+- Deep-linking support for Arch Wiki troubleshooting sections.
+- Unified FZF header styling with keyboard shortcut hints.
+- Terminal buffer normalization using `clear` to prevent redraw bugs on full screens.
+
+### Fixed
+- Resolved "Double Print/Ghosting" bug when returning from the browser.
+- Fixed variable leakage where the wrong Wiki page would open in sequential errors.
+- Corrected FZF height and layout for better readability on small terminal windows.
+### Changed
+- Moved Knowledge Base initialization inside the function for better scope management.
+- Switched to native Zsh string expansion for faster metadata parsing.
+
+---
+
+## [v0.3.0] - 2026-03-18
+### Added 
+- The Janitor: Automatic detection of orphaned dependencies (`-Qdtq`) with an interactive `pacman -Rns` prompt.
+- Reflector integration: Detects `404` and `Connection Timeout` errors and offers to refresh the top 10 HTTPS mirrors.
+- Recursive History Scanning: Implemented a doubling search depth (up to 100 lines) to find buried errors past "noise" commands.
+
+##Fixed
+ - Added an exit-code check to prevent `fzf` from opening if the last command was successful.
+
+## Security 
+- Added project headers with versioning, ownership, and MIT license metadata.
+
+---
+
 ## [v0.2.1] - 2026-03-15
 ### Changed
 - **Rebrand**: Project officially renamed from **RTFM** to **Mend**.
-- **Project Structure**: Updated for full **Oh My Zsh** compatibility.
-- **Function Name**: Main command changed to `mend`.
-- **Legacy Support**: Added `rtfm` bridge so old commands still work.
+- Project Structure: Updated for full **Oh My Zsh** compatibility.
+- Function Name: Main command changed to `mend`.
+- Legacy Support: Added `rtfm` bridge so old commands still work.
 
-### [v0.2.0] - 2026-03-13
-#### Added
+---
+
+## [v0.2.0] - 2026-03-13
+### Added
 - Automated GPG/PGP key fetching from `keyserver.ubuntu.com`.
 - Visual feedback with colored status messages (Success/Error/Warning).
 - Buffer re-injection for recovered AUR commands.
 
-#### Changed
+### Changed
 - Replaced `fc` with `history -n` to bypass `$EDITOR` conflicts.
 - Refined history scraping to ignore `mend` and `echo` calls.
 - Updated README with better usage examples and modular descriptions.
 
-### [v0.1.0] - 2026-03-01
+---
+
+## [v0.1.0] - 2026-03-01
 - Initial release.
 - Support for `db.lck` detection and removal.
 - Command-not-found integration using `pacman -F`.

@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 # MEND - The Arch Linux Command Assistant
-# Version: 0.3.0
+# Version: 0.4.0
 # Author:  Rakosn1cek (https://github.com/Rakosn1cek/mend)
 # License: MIT
 # ------------------------------------------------------------------------------
@@ -8,15 +8,37 @@
 # ------------------------------------------------------------------------------
 
 function mend() {
-    local MEND_VERSION="0.3.0"
-    # 1. Grab the last command
+    clear
+    
+    # 0. Initialize Knowledge Base
+    typeset -A MEND_KB
+    MEND_KB=(
+        "ERR_LOCKED"  "Ghost lock file (/var/lib/pacman/db.lck) detected. Usually from a crash.|https://wiki.archlinux.org/title/Pacman#\"Failed_to_init_transaction_(unable_to_lock_database)\"_error"
+        "ERR_PGP"     "Missing PGP key for AUR verification. Required to trust the source code.|https://wiki.archlinux.org/title/GnuPG#Import_a_public_key"
+        "ERR_ORPHANS" "Unused dependencies. Safe to prune to keep the system lean.|https://wiki.archlinux.org/title/Pacman#Removing_unused_packages_(orphans)"
+        "ERR_CONFLICT" "File path collision between packages. Manual path verification recommended.|https://wiki.archlinux.org/title/Pacman#\"Failed_to_commit_transaction_(conflicting_files)\"_error"
+        "ERR_CORRUPT" "Invalid package metadata/tarball. Likely a failed download or mirror sync.|https://wiki.archlinux.org/title/Pacman#\"Package_is_invalid_or_corrupted\"_error"
+        "ERR_MIRRORS" "Stale or slow mirrors detected. Refreshing mirrorlist via reflector.|https://wiki.archlinux.org/title/Mirrors#Mirror_ranking"
+    )
+        
+    local MEND_VERSION="0.4.0"
+    
+    # 1. Grab history context
     local last_full_cmd=$(history -n -1 | grep -v "mend")
     [[ -z "$last_full_cmd" ]] && last_full_cmd=$(history -n -2 | head -n 1)
     local cmd_base=$(echo "$last_full_cmd" | awk '{print $1}')
 
     # 2. Check for Database Lock
     if [[ -f /var/lib/pacman/db.lck ]]; then
-        if [[ $(echo -e "No\nYes (Remove Lock)" | fzf --height 15% --header "Pacman is locked. Remove /var/lib/pacman/db.lck?") == "Yes (Remove Lock)" ]]; then
+        local lock_entry="${MEND_KB[ERR_LOCKED]}"
+        local lock_info="${lock_entry%%|*}"
+        local lock_wiki="${lock_entry##*|}"
+
+        local lock_choice=$(echo -e "No\nYes (Remove Lock)" | fzf --height 25% --layout=reverse --no-clear \
+            --header "Mend: $lock_info"$'\n'"Shortcut: [w] Open Arch Wiki" \
+            --bind "w:execute-silent( (xdg-open '$lock_wiki' >/dev/null 2>&1) &! )")
+            
+        if [[ "$lock_choice" == "Yes (Remove Lock)" ]]; then
             sudo rm /var/lib/pacman/db.lck && echo "Lock removed."
             return 0
         fi
@@ -40,9 +62,18 @@ function mend() {
 
     # Handle PGP Fix
     if [[ -n "$pgp_key" ]]; then
+        local pgp_entry="${MEND_KB[ERR_PGP]}"
+        local pgp_info="${pgp_entry%%|*}"
+        local pgp_wiki="${pgp_entry##*|}"
+
         print -P "%F{yellow}Mend:%f Detected missing PGP key: %F{cyan}$pgp_key%f"
-        if read -q "choice?Import this key from keyserver? (y/n) "; then
-            print -P "\n\n%F{yellow}Mend:%f Fetching from keyserver.ubuntu.com..."
+        
+        local pgp_choice=$(echo -e "No\nYes (Import Key)" | fzf --height 25% --layout=reverse \
+            --header "Mend: $pgp_info"$'\n'"Shortcut: [w] Open Arch Wiki" \
+            --bind "w:execute-silent( (xdg-open '$pgp_wiki' >/dev/null 2>&1) &! )")
+
+        if [[ "$pgp_choice" == "Yes (Import Key)" ]]; then
+            print -P "\n%F{yellow}Mend:%f Fetching from keyserver.ubuntu.com..."
             if gpg --keyserver keyserver.ubuntu.com --recv-keys "$pgp_key"; then
                 print -P "\n%F{green}Mend:%f Key imported. Re-running command..."
                 [[ -n "$last_full_cmd" ]] && print -z "$last_full_cmd"
@@ -54,9 +85,18 @@ function mend() {
 
     # Handle Mirrorlist Fix
     if [[ "$mirror_fail" == true ]]; then
+        local mir_entry="${MEND_KB[ERR_MIRRORS]}"
+        local mir_info="${mir_entry%%|*}"
+        local mir_wiki="${mir_entry##*|}"
+
         print -P "%F{red}Mend:%f Detected connection/mirror issues in history."
-        if read -q "choice?Update mirrorlist with Reflector? (y/n) "; then
-            print -P "\n\n%F{yellow}Mend:%f Running Reflector..."
+
+        local mir_choice=$(echo -e "No\nYes (Update Mirrors)" | fzf --height 25% --layout=reverse --no-clear \
+            --header "Mend: $mir_info"$'\n'"Shortcut: [w] Open Arch Wiki" \
+            --bind "w:execute-silent( (xdg-open '$mir_wiki' >/dev/null 2>&1) &! )")
+
+        if [[ "$mir_choice" == "Yes (Update Mirrors)" ]]; then
+            print -P "\n%F{yellow}Mend:%f Running Reflector..."
             sudo reflector --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
             print -P "%F{green}Mend:%f Mirrors updated."
             return 0
@@ -78,7 +118,7 @@ function mend() {
         local owner=$(pacman -Fq "/usr/bin/$cmd_base" | head -n 1)
         local pkg=${owner:-$cmd_base}
     else
-        # 5. History Package Search (Only if not a common built-in)
+        # 5. History Package Search
         if [[ ! "$cmd_base" =~ ^(echo|ls|cd|pwd|cat|history|mend)$ ]]; then
             local last_pac_cmd=$(history | grep -E 'pacman|yay|paru' | tail -n 1 | sed 's/^[ ]*[0-9]*[ ]*//')
             local pkg=$(echo "$last_pac_cmd" | awk '{print $NF}')
@@ -86,10 +126,7 @@ function mend() {
     fi
 
     # 6. FZF Selection Logic
-    # NEW: Only search if the last command actually FAILED or was 'not found'
     if [[ -n "$pkg" ]]; then
-        # Fetch the exit code of the last command from Zsh history
-        # We only want to run fzf if the last real command returned an error (!= 0)
         local last_exit_code=$(fc -ln -1 | awk '{print $NF}' > /dev/null; echo $?) 
 
         if ! command -v "$cmd_base" >/dev/null 2>&1 || [[ $last_exit_code -ne 0 ]]; then
@@ -110,8 +147,17 @@ function mend() {
     # 7. THE JANITOR (Orphan Cleanup)
     local orphans=$(pacman -Qdtq)
     if [[ -n "$orphans" ]]; then
+        local orp_entry="${MEND_KB[ERR_ORPHANS]}"
+        local orp_info="${orp_entry%%|*}"
+        local orp_wiki="${orp_entry##*|}"
+
         print -P "\n%F{blue}Mend:%f Your system has orphaned dependencies."
-        if [[ $(echo -e "No\nYes (Cleanup)" | fzf --height 15% --header "Remove orphaned packages? (pacman -Rns)") == "Yes (Cleanup)" ]]; then
+        
+        local orp_choice=$(echo -e "No\nYes (Cleanup)" | fzf --height 25% --layout=reverse --no-clear \
+            --header "Mend: $orp_info"$'\n'"Shortcut: [w] Open Arch Wiki" \
+            --bind "w:execute-silent( (xdg-open '$orp_wiki' >/dev/null 2>&1) &! )")
+
+        if [[ "$orp_choice" == "Yes (Cleanup)" ]]; then
             sudo pacman -Rns $orphans
             return 0
         fi

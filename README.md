@@ -1,12 +1,32 @@
 # Mend (formerly RTFM)
 
-**VERSION: v0.3.0**
+**VERSION: v0.4.0**
 
 **Mend** is a modular, fzf-powered recovery tool for Arch Linux. It "mends" your broken command chain by detecting failures (like missing PGP keys or locked databases) and offering a context-aware fix.
 > [!IMPORTANT]
 > **RTFM has been rebranded to Mend.** If you are an existing user, please see the [Migration](#-migration-from-rtfm) section below.
 
 ![RTFM Demo](assets/demo.png)
+
+## What's New in v0.4.0
+
+## [0.4.0] - 2026-03-22
+### Added
+- Integrated Knowledge Base (MEND_KB) for standardized error descriptions and Wiki links.
+- Deep-linking support for Arch Wiki troubleshooting sections.
+- Unified FZF header styling with keyboard shortcut hints.
+- Terminal buffer normalization using `clear` to prevent redraw bugs on full screens.
+
+### Fixed
+- Resolved "Double Print/Ghosting" bug when returning from the browser.
+- Fixed variable leakage where the wrong Wiki page would open in sequential errors.
+- Corrected FZF height and layout for better readability on small terminal windows.
+
+### Changed
+- Moved Knowledge Base initialization inside the function for better scope management.
+- Switched to native Zsh string expansion for faster metadata parsing.
+
+---
 
 ## What's New in v0.3.0
 
@@ -17,8 +37,10 @@ The **"Janitor & Detective"** update. This version moves Mend from a reactive to
 * **Mirrorlist Health:** Detected a `404` or `Connection Timeout`? Mend now offers to trigger `reflector` to find the 10 fastest HTTPS mirrors for you.
 * **Intelligent Execution:** Improved logic ensures Mend only opens search windows if the last command actually failed. No more ghost `fzf` windows.
 
+---
+
 ## What's New in v0.2.0
-[!TIP]
+
 * **The Signature Update**: This version focuses on making AUR installations frictionless by handling GPG automation and refining shell history interaction.
 * **PGP Key Auto-Fetch**: No more manual `gpg --recv-keys`. `mend` detects the missing ID and fetches it for you.
 * **Zero-Conflict History**: Switched to `history -n` to prevent `mend` from accidentally opening your text editor (Micro/Vim) when reading command history.
@@ -27,7 +49,7 @@ The **"Janitor & Detective"** update. This version moves Mend from a reactive to
 ---
 
 ## Features
-
+* **[NEW v0.4.0] Integrated Arch Wiki**: Press `[w]` inside any fix menu to open web browser directly to the relevant troubleshooting section on the Arch Wiki.
 * **[NEW v0.3.0] The Janitor (Orphan Sweep)**: Proactive detection of unused dependencies (`-Qdtq`) with a one-click cleanup option to keep your system lean.
 * **[NEW v0.3.0] Smart Mirror Refresh**: Integrated `reflector` support to automatically fix `404` or `Connection Timeout` errors in your package manager.
 * **[NEW v0.3.0] Recursive History Scanning**: High-performance iterative scanning that "digs deeper" into your history to find errors, even if you've run "noise" commands like `ls` or `cd`in between.
@@ -100,16 +122,35 @@ mend: Detected missing PGP key: 1397BC53640DE551
 Import this key from keyserver? (y/n) y
 # mend fetches the key and puts the 'yay' command back in your buffer
 ```
+**Example 3: Database Lock Error [NEW v0.4.0]**
+```zsh
+❯ sudo pacman -S tree
+error: failed to init transaction (unable to lock database)
+if you're sure a package manager is not already running, you can remove /var/lib/pacman/db.lck
 
-**[New in v0.3.0] Connection/Mirror Fix:**
+❯ mend
+# Mend detects the ghost lock, offers a fix, and provides the Wiki shortcut
+Mend: Ghost lock file (/var/lib/pacman/db.lck) detected. Usually from a crash.
+[w] Wiki: [https://wiki.archlinux.org/title/Pacman#](https://wiki.archlinux.org/title/Pacman#)"Failed_to_init_transaction_(unable_to_lock_database)"_error
+```
+---
+
+**[New in v0.4.0] Integrated Troubleshooting & Arch Wiki:**
+Mend now includes a built-in Knowledge Base for critical Arch Linux errors (Database Locks, PGP verification, File Conflicts).
+* **Interactive Fixes**: Choose "Yes" to automate the repair (e.g., removing `db.lck`).
+* **Arch Wiki Integration**: Press `[w]` at any prompt to jump directly to the official documentation for that specific error.
+* **TUI Stability**: Optimized terminal buffer management using `clear` to prevent redraw artifacts on full screens.
+
+---
+
+**[New in v0.3.0] Connection/Mirror Fix, System Cleanup and Deep History Search**
+* **Connection/Mirror Fix:**
 If a download fails due to a dead mirror, Mend identifies the timeout and prompts:
 `Mend: Detected connection/mirror issues. Update mirrorlist with Reflector? (y/n)`
-
-**[New in v0.3.0] System Cleanup (The Janitor):**
+* **System Cleanup (The Janitor):**
 If your system is healthy but has unused dependencies:
 `Mend: Your system has orphaned dependencies. Remove orphaned packages? (pacman -Rns)`
-
-**[New in v0.3.0] Deep History Search:**
+* **Deep History Search:**
 Mend now scans past "noise" commands. If you run `ls` or `clear` five times after a PGP error, Mend will still find and offer to fix the original error.
 
 ___
@@ -139,11 +180,27 @@ If **mend** saved you some time today, feel free to buy me a coffee!
 - [x] **Mirrorlist Health**: Detect "connection timed out" errors and offer to trigger a `reflector` mirror update.
 
 ### Long-term Research
-- [ ] **Contextual Wiki Links**: Provide a direct URL to the relevant Arch Wiki section alongside the fix.
+- [x] **Contextual Wiki Links**: Provide a direct URL to the relevant Arch Wiki section alongside the fix. [Added in v0.4.0]
 - [ ] **Smart History Search**: Suggest the most similar successful command from history when a typo occurs.
 - [ ] **Fish & Bash Ports**: Exploring a POSIX-compliant core to bring mend logic to other shells.
 
 ## 📜 CHANGELOG
+
+## v0.4.0 (2026-03-22) - Knowledge Base and Arch Wiki Links
+### Added
+- Integrated Knowledge Base (MEND_KB) for standardized error descriptions and Wiki links.
+- Deep-linking support for Arch Wiki troubleshooting sections.
+- Unified FZF header styling with keyboard shortcut hints.
+- Terminal buffer normalization using `clear` to prevent redraw bugs on full screens.
+
+### Fixed
+- Resolved "Double Print/Ghosting" bug when returning from the browser.
+- Fixed variable leakage where the wrong Wiki page would open in sequential errors.
+- Corrected FZF height and layout for better readability on small terminal windows.
+### Changed
+- Moved Knowledge Base initialization inside the function for better scope management.
+- Switched to native Zsh string expansion for faster metadata parsing.
+
 
 ### v0.3.0 (2026-03-18) - The Janitor & Detective
 * **Feature:** Added "The Janitor" – Automatic detection of orphaned dependencies (`-Qdtq`) with an interactive `pacman -Rns` prompt.
@@ -153,9 +210,9 @@ If **mend** saved you some time today, feel free to buy me a coffee!
 * **Security:** Added a project header with versioning and ownership/license metadata.
 
 ### v0.2.1 (2026-03-16) - Rebrand & PGP
-* **Rebrand:** Renamed project from `rtfm` to `mend`.
-* **Feature:** Added PGP Public Key auto-fetch for AUR builds.
-* **Compatibility:** Added official Oh My Zsh plugin support.
+- **Rebrand:** Renamed project from `rtfm` to `mend`.
+- **Feature:** Added PGP Public Key auto-fetch for AUR builds.
+- **Compatibility:** Added official Oh My Zsh plugin support.
 
 ### [v0.2.0] - 2026-03-13
 #### Added
